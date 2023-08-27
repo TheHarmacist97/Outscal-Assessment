@@ -24,14 +24,6 @@ public class Player : MonoBehaviour, IDamageable
         regenDelayWait = new WaitForSeconds(playerHealthStats.regenDelay);
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            TakeDamage(3f);
-        }
-    }
-
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;

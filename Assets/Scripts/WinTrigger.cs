@@ -9,6 +9,7 @@ public class WinTrigger : MonoBehaviour
         if (hitLayerMask == playerLayer)
         {
             GameManager.Instance.Win();
+            collision.GetComponent<PlayerMovement>().OnGameEnd();
         }
     }
 }

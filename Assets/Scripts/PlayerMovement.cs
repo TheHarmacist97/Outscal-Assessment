@@ -12,24 +12,24 @@ public class PlayerMovement : MonoBehaviour
 
     private float moveDir;
     private bool isGrounded;
-    private bool playerAlive;
+    private bool takeInput;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<BoxCollider2D>();
-        playerAlive = true;    
+        takeInput = true;    
     }
 
     private void OnEnable()
     {
         Player.OnDamageEvent += OnPlayerDamage;
-        Player.OnDeathEvent += OnPlayerDeath;
+        Player.OnDeathEvent += OnGameEnd;
     }
 
     private void OnDisable()
     {
         Player.OnDamageEvent -= OnPlayerDamage;
-        Player.OnDeathEvent -= OnPlayerDeath;
+        Player.OnDeathEvent -= OnGameEnd;
     }
 
     private void OnPlayerDamage()
@@ -50,9 +50,9 @@ public class PlayerMovement : MonoBehaviour
         rb.AddForce(rotVector * 25f, ForceMode2D.Impulse);
     }
 
-    private void OnPlayerDeath()
+    public void OnGameEnd()
     {
-        playerAlive = false;
+        takeInput = false;
         rb.gravityScale = 0;
         rb.velocity = Vector2.zero;
         rb.isKinematic = true;
@@ -61,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (!playerAlive) return;
+        if (!takeInput) return;
 
         //basic ground check
         isGrounded = Physics2D.BoxCast(transform.position, coll.bounds.extents, 0, Vector2.down, coll.bounds.extents.y + 0.01f, groundLayer);
@@ -73,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!playerAlive) return;
+        if (!takeInput) return;
 
         moveDir = Input.GetAxisRaw("Horizontal");
 
