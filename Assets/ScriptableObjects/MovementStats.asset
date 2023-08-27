@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveForce: 40
   maxSpeed: 8
+  jumpImpulse: 20
+  decelerationRate: 0.8

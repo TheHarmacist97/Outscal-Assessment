@@ -19,9 +19,14 @@ public class Player : MonoBehaviour, IDamageable
 
     private void Awake()
     {
+        regenDelayWait = new WaitForSeconds(playerHealthStats.regenDelay);
+        ResetParams();
+    }
+
+    private void ResetParams()
+    {
         isAlive = true;
         currentHealth = playerHealthStats.maxHealth;
-        regenDelayWait = new WaitForSeconds(playerHealthStats.regenDelay);
     }
 
     public void TakeDamage(float damage)

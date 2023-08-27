@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float jumpImpulse;
-    [SerializeField, Range(0.1f, 1.0f)] private float decelerationRate;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private MovementStats moveStats;
     private Rigidbody2D rb;
@@ -32,21 +30,28 @@ public class PlayerMovement : MonoBehaviour
         Player.OnDeathEvent -= OnGameEnd;
     }
 
-    private void OnPlayerDamage()
+    private Vector2 RotateVector(Vector2 originalVector, float angle)
     {
-        //Rotating my damage impulse vector by an angle that is dependent on my horizontal velocity
-        float currentXVelocity = rb.velocity.x;
-        float lerpTValue = Mathf.InverseLerp(-moveStats.maxSpeed, moveStats.maxSpeed, currentXVelocity);
-        float angle = Mathf.Lerp(-45, 45, lerpTValue);
-
-        Vector2 originalVector = Vector2.right; 
         float sin = Mathf.Sin(angle);
         float cos = Mathf.Cos(angle);
         Vector2 rotVector = Vector2.zero;
 
-        rotVector.x = -sin * originalVector.x + cos * originalVector.y;
-        rotVector.y = cos * originalVector.x + sin * originalVector.y;
+        rotVector.x = cos * originalVector.x - sin * originalVector.y;
+        rotVector.y = sin * originalVector.x + cos * originalVector.y;
+        return rotVector;
+    }
 
+    private void OnPlayerDamage()
+    {
+        //Rotating my damage impulse vector by an angle that is dependent on my horizontal velocity
+        float currentXVelocity = rb.velocity.x;
+        float lerpTValue = Mathf.InverseLerp(-moveStats.maxSpeed, moveStats.maxSpeed, currentXVelocity); //Remapping horizontal velocity to backImpulse vector angle
+        Debug.Log(lerpTValue);
+        float angle = Mathf.Lerp(-45, 45, lerpTValue);
+        Debug.Log(angle);
+        
+        Vector2 rotVector = RotateVector(transform.up, angle);
+        Debug.Log(rotVector);
         rb.AddForce(rotVector * 25f, ForceMode2D.Impulse);
     }
 
@@ -67,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = Physics2D.BoxCast(transform.position, coll.bounds.extents, 0, Vector2.down, coll.bounds.extents.y + 0.01f, groundLayer);
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(Vector2.up * jumpImpulse, ForceMode2D.Impulse);
+            rb.AddForce(Vector2.up * moveStats.jumpImpulse, ForceMode2D.Impulse);
         }
     }
 
@@ -80,7 +85,7 @@ public class PlayerMovement : MonoBehaviour
         if (moveDir == 0 && isGrounded) //GetAxisRaw only gives -1, 0 or 1 value 
         {
             //decelerate
-            rb.velocity = new Vector2(rb.velocity.x * decelerationRate, rb.velocity.y);
+            rb.velocity = new Vector2(rb.velocity.x * moveStats.decelerationRate, rb.velocity.y);
         }
 
         if (Mathf.Abs(rb.velocity.x) > moveStats.maxSpeed && moveDir * rb.velocity.x >= 0)
